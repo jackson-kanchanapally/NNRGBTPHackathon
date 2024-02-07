@@ -7,8 +7,6 @@ module.exports = cds.service.impl(async function () {
       });
     this.before("CREATE",  Business_Partner, async (req) => {
         const { bp_no, Is_gstn_registered, Gst_num } = req.data;
-
-        // Check if Is_gstn_registered is true and Gst_num is not provided
         if (Is_gstn_registered && !Gst_num) {
             req.error({
                 code: "MISSING_GST_NUM",

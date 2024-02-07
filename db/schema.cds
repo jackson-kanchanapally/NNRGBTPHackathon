@@ -3,7 +3,8 @@ using {cuid} from '@sap/cds/common';
 @assert.unique:{
     bp_no:[bp_no]
 }
-entity Business_Partner : cuid {
+entity Business_Partner {
+    key ID: UUID;
     bp_no:String(6);
     @title:'Name'
     name:String(20);
@@ -26,6 +27,36 @@ entity Business_Partner : cuid {
       @title:' is customer'
     Is_customer:Boolean default false;
 }
+
+entity Store {
+    key ID: UUID;
+    store_id :String(10);
+    name         : String(100);
+    add1     : String(255);
+    add2     : String(255);
+    city         : String(100);
+    state        : Association to States;
+    PinCode      : String(10) @(assert.format: '^[1-9][0-9]{5}$');
+}
+
+entity Product {
+    key ID: UUID;
+    p_id           : String(20); 
+    name     : String(100);
+    imageURL        : String(255);
+    costPrice       : Decimal(15, 2); 
+    sellPrice       : Decimal(15, 2); 
+}
+
+
+entity Stock {
+    key ID            : UUID;
+    store_id         : Association to Store;
+    product_id       : Association to Product;
+    stock_qty        : Integer;
+}
+
+
 @cds.persistence.skip
 entity States {
     @title:'code'
