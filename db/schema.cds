@@ -51,7 +51,7 @@ entity Product {
 
 entity Stock {
     key ID            : UUID;
-    store_id         : Association to Store;
+    storeId         : Association to Store;
     product_id       : Association to Product;
     stock_qty        : Integer;
 }
