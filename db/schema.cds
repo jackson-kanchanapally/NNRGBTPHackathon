@@ -56,7 +56,35 @@ entity Stock {
     stock_qty        : Integer;
 }
 
+entity PurchaseApp {
+    key ID            : UUID;
+    pon:Integer;
+    bp:Association to Business_Partner;
+    pDate:Date;
+    Items:Composition of many{
+        key ID:UUID;
+        item:Association to Items;
+    }
+}
 
+entity Items {
+    key ID :UUID;
+     storeId         : Association to Store;
+    qty:Association to Stock;
+    productId       : Association to Product;
+    price:Association to Product;
+}
+
+entity SalesApp {
+    key ID :UUID;
+    son:Integer;
+    bp:Association to Business_Partner;
+    saleDate:Association to PurchaseApp;
+     Items:Composition of many{
+        key ID:UUID;
+        item:Association to Items;
+    }
+}
 @cds.persistence.skip
 entity States {
     @title:'code'
