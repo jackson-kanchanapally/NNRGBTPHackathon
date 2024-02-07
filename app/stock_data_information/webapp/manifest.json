@@ -1,0 +1,138 @@
+{
+  "_version": "1.59.0",
+  "sap.app": {
+    "id": "stockdatainformation",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.12.3",
+      "toolsId": "d49ece7a-06f3-4ca0-8479-e3a6bf5b8252"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/market/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.120.6",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ushell": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "stockdatainformation.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "StockList",
+          "target": "StockList"
+        },
+        {
+          "pattern": "Stock({key}):?query:",
+          "name": "StockObjectPage",
+          "target": "StockObjectPage"
+        }
+      ],
+      "targets": {
+        "StockList": {
+          "type": "Component",
+          "id": "StockList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "intialLoad": "Enabled",
+              "contextPath": "/Stock",
+              "variantManagement": "Page",
+              "navigation": {
+                "Stock": {
+                  "detail": {
+                    "route": "StockObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "StockObjectPage": {
+          "type": "Component",
+          "id": "StockObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "createMode": "inline",
+              "editableHeaderContent": false,
+              "contextPath": "/Stock"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}
