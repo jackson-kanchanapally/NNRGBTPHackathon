@@ -52,7 +52,7 @@ entity Product {
 entity Stock {
     key ID            : UUID;
     storeId         : Association to Store;
-    product_id       : Association to Product;
+    productId       : Association to Product;
     stock_qty        : Integer;
 }
 

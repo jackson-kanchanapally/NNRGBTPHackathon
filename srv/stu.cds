@@ -8,7 +8,11 @@ service Market {
         ID,
         * 
     };
-    entity Product          as projection on db.Product;
+    entity Product          as projection on db.Product {
+         @UI.Hidden : true
+        ID,
+        * 
+    };
     entity Stock            as projection on db.Stock;
 }
 
@@ -257,7 +261,7 @@ annotate Market.Stock with @(
         },
          {
             Label:'Product Id',
-            Value:product_id_ID
+            Value:productId_ID
         },
         {
             Label:'Stock Quantity',
@@ -273,7 +277,7 @@ annotate Market.Stock with @(
         },
          {
             Label:'Product Id',
-            Value:product_id_ID
+            Value:productId_ID
         },
          {
             Label:'Stock Quantity',
@@ -337,8 +341,6 @@ annotate Market.Store with {
 
 annotate Market.Stock with {
     storeId @(
-        // Common.Text: .des,
-        // Common.TextArrangement: #TextOnly,
         Common.ValueListWithFixedValues: true,
         Common.ValueList : {
             Label: 'Store id',
@@ -347,6 +349,25 @@ annotate Market.Stock with {
                 {
                     $Type             : 'Common.ValueListParameterInOut',
                     LocalDataProperty : storeId_ID,
+                    ValueListProperty : 'ID'
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'name'
+                },
+             
+            ]
+        }
+    );
+productId @(
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList : {
+            Label: 'Product id',
+            CollectionPath : 'Product',
+            Parameters: [
+                {
+                    $Type             : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : productId_ID,
                     ValueListProperty : 'ID'
                 },
                 {
