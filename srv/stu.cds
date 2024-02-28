@@ -1,7 +1,13 @@
 using {com.test.sdb as db} from '../db/schema';
 
 service Market {
-    entity Business_Partner as projection on db.Business_Partner;
+    entity Business_Partner as
+        projection on db.Business_Partner {
+            @UI.Hidden: true
+            ID,
+            *
+        };
+
     entity States           as projection on db.States;
 
     entity Store            as
@@ -18,9 +24,30 @@ service Market {
             *
         };
 
-    entity Stock            as projection on db.Stock;
-    entity Items            as projection on db.Items;
-    entity PurchaseApp      as projection on db.PurchaseApp;
+    entity Stock            as
+        projection on db.Stock {
+            @UI.Hidden: true
+            ID,
+            *
+        };
+
+    // entity Items            as projection on db.Items{
+    //         @UI.Hidden: true
+    //         ID,
+    //         *
+    //     };
+    entity PurchaseApp      as
+        projection on db.PurchaseApp {
+            @UI.Hidden: true
+            ID,
+            *
+        };
+    entity SalesApp      as
+        projection on db.PurchaseApp {
+            @UI.Hidden: true
+            ID,
+            *
+        };
 }
 
 annotate Market.Business_Partner with @odata.draft.enabled;
@@ -28,11 +55,17 @@ annotate Market.Store with @odata.draft.enabled;
 annotate Market.Product with @odata.draft.enabled;
 annotate Market.Stock with @odata.draft.enabled;
 annotate Market.PurchaseApp with @odata.draft.enabled;
-annotate Market.Items with @odata.draft.enabled;
+annotate Market.SalesApp with @odata.draft.enabled;
+// annotate Market.Items with @odata.draft.enabled;
 
 annotate Market.Business_Partner with {
     pinCode @assert.format: '^[1-9]{1}[0-9]{2}\\s{0, 1}[0-9]{3}$';
     Gst_num @assert.format: '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[Z]{1}[0-9]{1}$';
+}
+
+annotate Market.Product with {
+    imageURL @assert.format: '^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$';
+
 }
 
 annotate Market.States with @(UI.LineItem: [
@@ -160,7 +193,7 @@ annotate Market.Store with @(
         },
         {
             Label: 'Pin code',
-            Value: PinCode // corrected to PinCode
+            Value: PinCode
         },
     ],
     UI.FieldGroup #store: {
@@ -204,7 +237,11 @@ annotate Market.Store with @(
     }, ],
 );
 
-
+// annotate Market.Product with {
+//     @Common.Text:'{name}'
+//     @Core.MediaType:'image/jpg'
+//     imageURL
+// };
 annotate Market.Product with @(
     UI.LineItem           : [
         {
@@ -217,6 +254,7 @@ annotate Market.Product with @(
         },
         {
             Label: 'Product Image URL',
+            $Type: 'UI.DataField',
             Value: imageURL
         },
         {
@@ -302,47 +340,45 @@ annotate Market.Stock with @(
     }, ],
 );
 
-annotate Market.Items with @(
-    UI.LineItem         : [
-        {
-            Label: 'Store Id',
-            Value: storeId.store_id
-        },
-        {
-            Label: 'Quantity',
-            Value: qty.stock_qty
-        },
-        {
-            Label: 'Price',
-            Value: price.sellPrice
-        },
-
-    ],
-
-    UI.FieldGroup #items: {
-        $Type: 'UI.FieldGroupType',
-        Data : [
-            {
-                Label: 'Store Id',
-                Value: storeId_ID
-            },
-            {
-                Label: 'Quantity',
-                Value: qty_ID
-            },
-            {
-                Label: 'Price',
-                Value: price_ID
-            },
-        ],
-    },
-    UI.Facets           : [{
-        $Type : 'UI.ReferenceFacet',
-        ID    : 'itemsFacet',
-        Label : 'items',
-        Target: '@UI.FieldGroup#items',
-    }, ],
-);
+// annotate Market.Items with @(
+//     UI.LineItem     : [
+//         // {
+//         //     Label: 'Store Id',
+//         //     Value: storeId_ID
+//         // },
+//         {
+//             Label: 'Quantity',
+//             Value: qty
+//         },
+//         {
+//             Label: 'Price',
+//             Value: price
+//         },
+//     ],
+//     UI.FieldGroup #items: {
+//         $Type: 'UI.FieldGroupType',
+//         Data : [
+//             // {
+//             //     Label: 'Store Id',
+//             //     Value: storeId_ID
+//             // },
+//             {
+//                 Label: 'Quantity',
+//                 Value: qty
+//             },
+//             {
+//                 Label: 'Price',
+//                 Value: price
+//             },
+//         ],
+//     },
+//     UI.Facets           : [{
+//         $Type : 'UI.ReferenceFacet',
+//         ID    : 'itemsFacet',
+//         Label : 'items',
+//         Target: '@UI.FieldGroup#items',
+//     }, ],
+// );
 
 annotate Market.PurchaseApp with @(
     UI.LineItem          : [
@@ -352,28 +388,29 @@ annotate Market.PurchaseApp with @(
         },
         {
             Label: 'Business Partner',
-            Value: bp.name
+            Value: bp_ID
         },
         {
             Label: 'Product purchase Date',
             Value: pDate
         },
         {
-            Label: 'store id',
-            Value: Items.item.storeId
+            Label: 'Store Id',
+            Value: store.name
         },
         {
-            Label: 'quantity',
-            Value: Items.item.qty
-        },
-        {
-            Label: 'Product id',
-            Value: Items.item.productId
+            Label: 'Product Name',
+            Value: Items.product.name,
         },
         {
             Label: 'Price',
-            Value: Items.item.price
+            Value: Items.price,
         },
+        {
+            Label: 'Quantity',
+            Value: Items.qty,
+        },
+
     ],
     UI.FieldGroup #purApp: {
         $Type: 'UI.FieldGroupType',
@@ -384,11 +421,15 @@ annotate Market.PurchaseApp with @(
             },
             {
                 Label: 'Business Partner',
-                Value: bp.name
+                Value: bp_ID
             },
             {
                 Label: 'Product purchase Date',
                 Value: pDate
+            },
+            {
+                Label: 'Store Id',
+                Value: store_ID
             },
         ],
     },
@@ -401,45 +442,115 @@ annotate Market.PurchaseApp with @(
         },
         {
             $Type : 'UI.ReferenceFacet',
-            ID    : 'itemssFacet',
+            ID    : 'purchaseItemFacet',
             Label : ' facets',
             Target: 'Items/@UI.LineItem'
         },
     ],
 );
+// annotate Market.SalesApp with @(
+//     UI.LineItem          : [
+//         {
+//             Label: 'Sales Order Number',
+//             Value: son
+//         },
+//         {
+//             Label: 'Business Partner',
+//             Value: bp_ID
+//         },
+//         {
+//             Label: 'Sales purchase Date',
+//             Value: sDate
+//         },
+//         {
+//             Label: 'Store Id',
+//             Value: store.name
+//         },
+//         {
+//             Label: 'Product Name',
+//             Value: Items.product.name,
+//         },
+//         {
+//             Label: 'Price',
+//             Value: Items.price,
+//         },
+//         {
+//             Label: 'Quantity',
+//             Value: Items.qty,
+//         },
+
+//     ],
+//     UI.FieldGroup #saleApp: {
+//         $Type: 'UI.FieldGroupType',
+//         Data : [
+//             {
+//                 Label: 'Purchase Order Number',
+//                 Value: son
+//             },
+//             {
+//                 Label: 'Business Partner',
+//                 Value: bp_ID
+//             },
+//             {
+//                 Label: 'Product purchase Date',
+//                 Value: sDate
+//             },
+//             {
+//                 Label: 'Store Id',
+//                 Value: store_ID
+//             },
+//         ],
+//     },
+//     UI.Facets            : [
+//         {
+//             $Type : 'UI.ReferenceFacet',
+//             ID    : 'salesAppFacet',
+//             Label : 'salesApp facets',
+//             Target: '@UI.FieldGroup#saleApp'
+//         },
+//         {
+//             $Type : 'UI.ReferenceFacet',
+//             ID    : 'saleItemFacet',
+//             Label : ' facets',
+//             Target: 'Items/@UI.LineItem'
+//         },
+//     ],
+// );
 
 annotate Market.PurchaseApp.Items with @(
-    UI.LineItem               : [{Value: item_ID},
+    UI.LineItem               : [
+        // {Value: ID},
+        {Value: product_ID},
+        {Value: qty},
+        {Value: price},
+
 
     ],
     UI.FieldGroup #purAppitems: {
-        $Type    : 'UI.FieldGroupType',
-        Data     : [
-            {Value: item_ID},
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            // {Value: ID},
             {
-                Label: 'store id',
-                Value: item.storeId_ID
+                Label: 'Product Id',
+                Value: product_ID
             },
-            // {
-            //     Label: 'quantity',
-            //     Value: item.qty
-            // },
-            // {
-            //     Label: 'Product id',
-            //     Value: item.productId
-            // },
-            // {
-            //     Label: 'Price',
-            //     Value: item.price
-            // },
+            {
+                Label: 'Quantity',
+                Value: qty
+            },
+            {
+                Label: 'Product Price',
+                Value: price
+            },
         ],
-        UI.Facets: [{
-            $Type : 'UI.ReferenceFacet',
-            ID    : 'purAppitemsFacet',
-            Label : 'purAppitems',
-            Target: '@UI.FieldGroup#purAppitems',
-        }, ]
     },
+    UI.Facets                 : [{
+        $Type : 'UI.ReferenceFacet',
+        ID    : 'purAppitemsFacet',
+        Label : 'purAppitems',
+        Target: '@UI.FieldGroup#purAppitems',
+    }, ]
+
 );
 
 
@@ -487,9 +598,56 @@ annotate Market.Store with {
     );
 };
 
+annotate Market.PurchaseApp with {
+    bp    @(
+        Common.Text                    : bp.name,
+        Common.TextArrangement:#TextOnly,
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'State',
+            CollectionPath: 'Business_Partner',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    LocalDataProperty: bp_ID,
+                    ValueListProperty: 'ID'
+                },
+
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                },
+            ]
+        }
+    );
+    store @(
+        Common.Text                    : store.name,
+        Common.TextArrangement         : #TextOnly,
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'store_id',
+            CollectionPath: 'Store',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    LocalDataProperty: 'store_ID',
+                    ValueListProperty: 'ID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+
+    )
+
+};
+
 annotate Market.Stock with {
     storeId   @(
         Common.ValueListWithFixedValues: true,
+        
         Common.ValueList               : {
             Label         : 'Store id',
             CollectionPath: 'Store',
@@ -528,16 +686,46 @@ annotate Market.Stock with {
     );
 }
 
-annotate Market.Items with {
-    storeId   @(
-        Common.ValueListWithFixedValues: true,
-        Common.ValueList               : {
-            Label         : 'Store id',
-            CollectionPath: 'Store',
+// annotate Market.PurchaseApp.Items with {
+//     Items  @(
+
+//            Common.Text:item.productId.name,
+//         // Common.ValueListWithFixedValues: true,
+//         Common.ValueList               : {
+//             Label         : 'Product',
+//             CollectionPath: 'Items',
+//             Parameters    : [
+//                 {
+//                     $Type            : 'Common.ValueListParameterInOut',
+//                     LocalDataProperty: item_ID,
+//                     ValueListProperty: 'ID'
+//                 },
+//                 {
+//                     $Type            : 'Common.ValueListParameterInOut',
+//                     ValueListProperty: 'productId_ID',
+//                     LocalDataProperty: '
+//                 },
+//                 {
+//                     $Type            : 'Common.ValueListParameterDisplayOnly',
+//                     ValueListProperty: 'productId_ID'
+//                 },
+
+//             ]
+//         }
+//     );
+// }
+annotate Market.PurchaseApp.Items with {
+    product @(
+        Common.Text     : product.name,
+          Common.TextArrangement:#TextOnly,
+        // Common.ValueListWithFixedValues: true,
+        Common.ValueList: {
+            Label         : 'product',
+            CollectionPath: 'Product',
             Parameters    : [
                 {
                     $Type            : 'Common.ValueListParameterInOut',
-                    LocalDataProperty: storeId_ID,
+                    LocalDataProperty: product_ID,
                     ValueListProperty: 'ID'
                 },
                 {
@@ -548,61 +736,11 @@ annotate Market.Items with {
             ]
         }
     );
-    productId @(
-        Common.ValueListWithFixedValues: true,
-        Common.ValueList               : {
-            Label         : 'Product id',
-            CollectionPath: 'Product',
-            Parameters    : [
-                {
-                    $Type            : 'Common.ValueListParameterInOut',
-                    LocalDataProperty: productId_ID,
-                    ValueListProperty: 'ID'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'name'
-                },
+};
 
-            ]
-        }
-    );
-    qty       @(
-        Common.ValueListWithFixedValues: true,
-        Common.ValueList               : {
-            Label         : 'Quantity',
-            CollectionPath: 'Stock',
-            Parameters    : [
-                {
-                    $Type            : 'Common.ValueListParameterInOut',
-                    LocalDataProperty: qty_ID,
-                    ValueListProperty: 'ID'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'stock_qty'
-                },
-
-            ]
-        }
-    );
-    price     @(
-        Common.ValueListWithFixedValues: true,
-        Common.ValueList               : {
-            Label         : 'Price',
-            CollectionPath: 'Product',
-            Parameters    : [
-                {
-                    $Type            : 'Common.ValueListParameterInOut',
-                    LocalDataProperty: price_ID,
-                    ValueListProperty: 'ID'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'price_sellPrice'
-                },
-
-            ]
-        }
-    );
-}
+annotate Market.Product with {
+    @Common.Text   : '{Product}'
+    @Core.IsURL    : true
+    @Core.MediaType: 'image/jpg'
+    imageURL
+};

@@ -23,5 +23,19 @@
     "app/project1",
     "app/business_partner",
     "app/stock_data_information"
-  ]
+  ],
+  "cds": {
+    "fiori": {
+      "lean_draft": true,
+      "bypass_draft": true
+    },
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db.sqlite"
+     }
+  }
+  }
+  }
 }
